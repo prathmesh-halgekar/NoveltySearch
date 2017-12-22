@@ -70,7 +70,7 @@ public class Population {
     }
 
     public boolean isSearchFinished() {
-        return searchFinished;
+        return this.searchFinished;
     }
 
     public void setSearchFinished(boolean searchFinished) {
@@ -131,7 +131,7 @@ public class Population {
         }
     }
     public void calculateFitness(){
-        System.out.println(" In calculateFitness : ");
+        System.out.println(" In calculateFitness,  Generation no. : " + this.getGeneration());
         for(Dna dna : this.dnaList){
             dna.calculateFitness(this.targetPhrase);
             dna.calculateNovelty(this.targetPhrase);
@@ -154,31 +154,31 @@ public class Population {
         }
     }
     public void generate(){
-        for(Dna dna : this.dnaList){
+        for(int i=0; i< this.dnaList.size(); i++){
             int indexOfPartnerA = new Random().nextInt(this.matingPool.size());
             int indexOfPartnerB = new Random().nextInt(this.matingPool.size());
             Dna partnerA = this.matingPool.get(indexOfPartnerA);
             Dna partnerB = this.matingPool.get(indexOfPartnerB);
             Dna child = partnerA.crossover(partnerB);
             child.mutate(this.mutationRate);
-            System.out.println(" In generate : "+child);
-            dna = child;
+            System.out.println(" In generate : new child is "+child);
+            this.dnaList.set(i,child);
         }
         this.generation++;
     }
 
     public void evaluate(){
-        float bestDnaRecord = 0;
+        float bestDnaRecord = 0.0f;
         Dna bestDna = null;
         for(Dna dna : this.dnaList){
-            if(dna.getFitness() > bestDnaRecord){
+            if(Float.compare(dna.getFitness(),bestDnaRecord) > 0){
 
                 bestDnaRecord = dna.getFitness();
-                System.out.println(" In eveluate : "+bestDnaRecord);
+                System.out.println(" In evaluate : "+bestDnaRecord);
                 bestDna = dna;
             }
         }
-        if(bestDnaRecord == 1){
+        if(Float.compare(bestDnaRecord, 1.0f) == 0){
             this.searchFinished =  true;
         }
     }

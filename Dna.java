@@ -11,7 +11,7 @@ public class Dna {
     private float sparseness = 0;
 
     public StringBuffer getGenes() {
-        return genes;
+        return this.genes;
     }
 
     public void setGenes(StringBuffer genes) {
@@ -19,7 +19,7 @@ public class Dna {
     }
 
     public float getFitness() {
-        return fitness;
+        return this.fitness;
     }
 
     public void setFitness(float fitness) {
@@ -42,7 +42,10 @@ public class Dna {
                 score++;
             }
         }
-        this.fitness = (score/targetString.length());
+        System.out.println("Characters matching : " +score);
+
+        this.fitness = ((float)score/(float)targetString.length());
+        System.out.println("Fitness is : " +this.fitness);
         return this.fitness;
     }
 
@@ -55,6 +58,7 @@ public class Dna {
             }
         }
         this.sparseness = score/(targetString.length());
+        System.out.println("Sparseness is : " +this.sparseness);
         return this.sparseness;
     }
 
@@ -62,7 +66,7 @@ public class Dna {
 
         Dna child = new Dna();
         int midpoint = new Random().nextInt(this.genes.length());
-        System.out.println("Midpoint : "+midpoint);
+        //System.out.println("Midpoint : "+midpoint);
         for(int i=0 ; i<this.genes.length() ; i++){
             if(i > midpoint){
                 child.setGenes(child.getGenes().append(this.genes.charAt(i)));

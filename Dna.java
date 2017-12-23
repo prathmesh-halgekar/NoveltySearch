@@ -9,6 +9,7 @@ public class Dna {
     private StringBuffer genes = new StringBuffer();
     private float fitness = 0;
     private float sparseness = 0;
+    private float maxScore;
 
     public StringBuffer getGenes() {
         return this.genes;
@@ -42,29 +43,60 @@ public class Dna {
                 score++;
             }
         }
-        System.out.println("Characters matching : " +score);
+        //System.out.println("Characters matching : " +score);
 
         this.fitness = ((float)score/(float)targetString.length());
-        System.out.println("Fitness is : " +this.fitness);
+        //System.out.println("Fitness is : " +this.fitness);
         return this.fitness;
     }
 
     public float calculateNovelty(StringBuffer targetString){
         // target and this.gene length should be the same
+        // In theory, difference should be calculated on phenotype and not genotype. But the below
+        // comparision on a character by character basis is also close enough?
         float score =0;
         for(int i=0; i< this.genes.length() ;i++){
             if(this.genes.charAt(i) != targetString.charAt(i)){
-                score += abs(Character.getNumericValue(this.genes.charAt(i)) - Character.getNumericValue(targetString.charAt(i)))/10;
+                score += abs(Character.getNumericValue(this.genes.charAt(i)) - Character.getNumericValue(targetString.charAt(i)));
             }
         }
-        this.sparseness = score/(targetString.length());
-        System.out.println("Sparseness is : " +this.sparseness);
+        //System.out.println("raw score is : "+score);
+        //System.out.println("max score before compare is : "+this.maxScore);
+        if(Float.compare(score,this.maxScore) > 0){
+            //System.out.println("max score is : "+this.maxScore);
+            score = this.maxScore;
+        }
+        this.sparseness = this.getNormalizedValue(score);
+        //System.out.println("Sparseness is : " +this.sparseness);
         return this.sparseness;
+    }
+
+    public float getNormalizedValue(float score){
+        float minScore = 0;
+        //float maxScore = 20.0f; // Assumption
+        if(Float.compare(score,0.0f)==0){
+            // to avoid 'NaN' scenario.
+            //System.out.println("raw score inside compare is : "+score);
+            return 0;
+        }else{
+            float result = (score-minScore)/(this.maxScore-minScore);
+            return result;
+        }
+
+    }
+
+    public float getMaxScore() {
+        return maxScore;
+    }
+
+    public void setMaxScore(float maxScore) {
+        this.maxScore = maxScore;
     }
 
     public Dna crossover(Dna partner){
 
         Dna child = new Dna();
+        child.setMaxScore(this.maxScore);
         int midpoint = new Random().nextInt(this.genes.length());
         //System.out.println("Midpoint : "+midpoint);
         for(int i=0 ; i<this.genes.length() ; i++){
@@ -80,21 +112,30 @@ public class Dna {
     public void mutate(float mutationRate){
         for(int i =0; i< this.genes.length(); i++){
             float r = (float)(new Random().nextInt(10))/10;
-            if( r < mutationRate){
+            if( Float.compare(r,mutationRate) < 0){
                 this.genes.setCharAt(i,randomSeriesForThreeCharacter());
             }
         }
     }
 
-    public void initializeGene(int length){
+
+    public void initializeGene(int length, int maxScoreForNovelty){
         this.genes = new StringBuffer();
+        this.maxScore = maxScoreForNovelty;
+        //System.out.println("While setting up , maxscore : "+this.maxScore);
         for(int i =0 ; i<length;i++){
             this.genes.append(randomSeriesForThreeCharacter());
         }
     }
     public static char randomSeriesForThreeCharacter() {
         Random r = new Random();
-        char random_3_Char = (char) (48 + r.nextInt(47));
+        int charVal = 63 + r.nextInt(59);
+        if(charVal == 63)
+            charVal = 32;
+        if(charVal == 64)
+            charVal = 46;
+
+        char random_3_Char = (char) charVal;
         return random_3_Char;
     }
 
@@ -128,14 +169,19 @@ public class Dna {
     }
 
     public static void main(String[] args){
+//        Dna dna = new Dna();
+////        dna.initializeGene(5);
+////        System.out.println(" : " + dna.getGenes().toString() );
+//        dna.setGenes(new StringBuffer("abcde"));
+//        Dna partner = new Dna();
+//        partner.setGenes(new StringBuffer("xyz09"));
+//        dna.mutate(0.09f);
+//        System.out.println("After mutation : "+ dna.getGenes().toString());
         Dna dna = new Dna();
-//        dna.initializeGene(5);
-//        System.out.println(" : " + dna.getGenes().toString() );
-        dna.setGenes(new StringBuffer("abcde"));
-        Dna partner = new Dna();
-        partner.setGenes(new StringBuffer("xyz09"));
-        dna.mutate(0.09f);
-        System.out.println("After mutation : "+ dna.getGenes().toString());
+        dna.setGenes(new StringBuffer("hello"));
+        for(int i=0;i<10;i++){
+            dna.mutate(0.5f);
 
+        }
     }
 }

@@ -2,8 +2,8 @@ public class SearchStrategy {
 
     public static void startSearch(){
         Population population = new Population();
-        StringBuffer target = new StringBuffer("TARGET");
-        population.setUpSearch(200, 0.08f,  target);
+        StringBuffer target = new StringBuffer("To be");
+        population.setUpSearch(400, 0.1f,  target, true, 40);
         population.initialize();
         population.calculateFitness();
         do {
@@ -11,6 +11,7 @@ public class SearchStrategy {
             population.generate();
             population.calculateFitness();
             population.evaluate();
+            population.showCurrentStatistics();
         }while (!population.isSearchFinished());
     }
     public static void main(String args[]){

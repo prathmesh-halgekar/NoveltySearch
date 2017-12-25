@@ -193,7 +193,7 @@ public class Population {
             }));
             int count = 0;
             for (Dna dna : tempArchiveList){
-                if(count < 5){
+                if(count < 15){
                     noveltyArchive.add(dna);
                 }else{
                     // just avoiding traditional looping using for loop.
@@ -202,14 +202,14 @@ public class Population {
                 count++;
             }
 
-            for(Dna dna : noveltyArchive) {
-                // gets Priority to be added again in the mutation pool
-                // pick only first 10?
-                float tmp = dna.getSparseness() * 100;
-                for (int i = 0 ; i < tmp ; i++) {
-                    this.matingPool.add(dna);
-                }
-            }
+//            for(Dna dna : noveltyArchive) {
+//                // gets Priority to be added again in the mutation pool
+//                // pick only first 10?
+//                float tmp = dna.getSparseness() * 100;
+//                for (int i = 0 ; i < tmp ; i++) {
+//                    this.matingPool.add(dna);
+//                }
+//            }
         }
 
     }

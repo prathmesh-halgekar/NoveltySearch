@@ -147,7 +147,7 @@ public class Population {
     }
     public void naturalSelection(){
         float maxFitness = 0;
-
+        this.matingPool = new ArrayList<>();
         if (!isNoveltySearch) {
 
             for (Dna dna : this.dnaList) {

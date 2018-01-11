@@ -1,15 +1,13 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.random;
 
 public class Dna {
     private StringBuffer genes = new StringBuffer();
-    private float fitness = 0;
-    private float sparseness = 0;
-    private float maxScore;
+    private double fitness = 0.00;
+    private double sparseness = 0.00;
+    private double maxScore;
 
     public StringBuffer getGenes() {
         return this.genes;
@@ -19,25 +17,25 @@ public class Dna {
         this.genes = genes;
     }
 
-    public float getFitness() {
+    public double getFitness() {
         return this.fitness;
     }
 
-    public void setFitness(float fitness) {
+    public void setFitness(double fitness) {
         this.fitness = fitness;
     }
 
-    public float getSparseness() {
+    public double getSparseness() {
         return sparseness;
     }
 
-    public void setSparseness(float sparseness) {
+    public void setSparseness(double sparseness) {
         this.sparseness = sparseness;
     }
 
-    public float calculateFitness(StringBuffer targetString){
+    public double calculateFitness(StringBuffer targetString){
         // target and this.gene length should be the same
-        float score =0;
+        double score =0.0;
         for(int i=0; i< this.genes.length() ;i++){
             if(this.genes.charAt(i) == targetString.charAt(i)){
                 score++;
@@ -45,16 +43,16 @@ public class Dna {
         }
         //System.out.println("Characters matching : " +score);
 
-        this.fitness = ((float)score/(float)targetString.length());
+        this.fitness = score/targetString.length();
         //System.out.println("Fitness is : " +this.fitness);
         return this.fitness;
     }
 
-    public float calculateNovelty(StringBuffer targetString){
+    public double calculateNovelty(StringBuffer targetString){
         // target and this.gene length should be the same
         // In theory, difference should be calculated on phenotype and not genotype. But the below
         // comparision on a character by character basis is also close enough?
-        float score =0;
+        double score =0.0;
         for(int i=0; i< this.genes.length() ;i++){
             if(this.genes.charAt(i) != targetString.charAt(i)){
                 score += abs(Character.getNumericValue(this.genes.charAt(i)) - Character.getNumericValue(targetString.charAt(i)));
@@ -62,7 +60,7 @@ public class Dna {
         }
         //System.out.println("raw score is : "+score);
         //System.out.println("max score before compare is : "+this.maxScore);
-        if(Float.compare(score,this.maxScore) > 0){
+        if(Double.compare(score,this.maxScore) > 0){
             //System.out.println("max score is : "+this.maxScore);
             score = this.maxScore;
         }
@@ -71,25 +69,25 @@ public class Dna {
         return this.sparseness;
     }
 
-    public float getNormalizedValue(float score){
-        float minScore = 0;
+    public double getNormalizedValue(double score){
+        double minScore = 0.0;
         //float maxScore = 20.0f; // Assumption
-        if(Float.compare(score,0.0f)==0){
+        if(Double.compare(score,0.0)==0){
             // to avoid 'NaN' scenario.
             //System.out.println("raw score inside compare is : "+score);
-            return 0;
+            return 0.0;
         }else{
-            float result = (score-minScore)/(this.maxScore-minScore);
+            double result = (score-minScore)/(this.maxScore-minScore);
             return result;
         }
 
     }
 
-    public float getMaxScore() {
+    public double getMaxScore() {
         return maxScore;
     }
 
-    public void setMaxScore(float maxScore) {
+    public void setMaxScore(double maxScore) {
         this.maxScore = maxScore;
     }
 
@@ -109,17 +107,18 @@ public class Dna {
         return child;
     }
 
-    public void mutate(float mutationRate){
+    public void mutate(double mutationRate){
         for(int i =0; i< this.genes.length(); i++){
-            float r = (float)(new Random().nextInt(10))/10;
-            if( Float.compare(r,mutationRate) < 0){
+            double r = ((double)(new Random().nextInt(10)))/(double)9.99;
+            //System.out.println("Division val : "+r);
+            if( Double.compare(r,mutationRate) < 0){
                 this.genes.setCharAt(i,randomSeriesForThreeCharacter());
             }
         }
     }
 
 
-    public void initializeGene(int length, int maxScoreForNovelty){
+    public void initializeGene(int length, double maxScoreForNovelty){
         this.genes = new StringBuffer();
         this.maxScore = maxScoreForNovelty;
         //System.out.println("While setting up , maxscore : "+this.maxScore);
@@ -146,16 +145,16 @@ public class Dna {
 
         Dna dna = (Dna) o;
 
-        if (Float.compare(dna.getFitness(), getFitness()) != 0) return false;
-        if (Float.compare(dna.getSparseness(), getSparseness()) != 0) return false;
+        if (Double.compare(dna.getFitness(), getFitness()) != 0) return false;
+        if (Double.compare(dna.getSparseness(), getSparseness()) != 0) return false;
         return getGenes().equals(dna.getGenes());
     }
 
     @Override
     public int hashCode() {
         int result = getGenes().hashCode();
-        result = 31 * result + (getFitness() != +0.0f ? Float.floatToIntBits(getFitness()) : 0);
-        result = 31 * result + (getSparseness() != +0.0f ? Float.floatToIntBits(getSparseness()) : 0);
+        result = 31 * result + (getFitness() != +0.0f ? Double.hashCode(getFitness()) : 0);
+        result = 31 * result + (getSparseness() != +0.0f ? Double.hashCode(getSparseness()) : 0);
         return result;
     }
 
@@ -179,9 +178,41 @@ public class Dna {
 //        System.out.println("After mutation : "+ dna.getGenes().toString());
         Dna dna = new Dna();
         dna.setGenes(new StringBuffer("hello"));
-        for(int i=0;i<10;i++){
-            dna.mutate(0.5f);
+//        for(int i=0;i<10;i++){
+//            dna.mutate(0.5f);
+//
+//        }
+        dna.setFitness(2.5);
+        Dna dna1 = new Dna();
+        dna1.setFitness(1.7);
+        Dna dna2 = new Dna();
+        dna2.setFitness(1.9);
 
+        List<Dna> list = new ArrayList<>();
+        list.add(dna);list.add(dna1);
+        list.add(dna2);
+
+        Map<Dna,Integer> map = new HashMap<>();
+        map.put(dna,2);
+        map.put(dna1,1);
+        map.put(dna2,3);
+
+        Collections.sort(list, Collections.reverseOrder(new Comparator<Dna>() {
+            @Override
+            public int compare(Dna o1, Dna o2) {
+                //if(map.get(o1) != null && map.get(o2) != null){
+                    return Float.compare(map.get(o1),map.get(o2));
+                //}else{
+                    //return 0;
+                //}
+
+            }
+        }));
+        for(Dna d : list){
+            System.out.println(d);
         }
+        System.out.println("list size : "+list.size());
+
+
     }
 }

@@ -1,0 +1,10 @@
+public enum Move {
+    FORWARD,
+    BACKWARD,
+    RIGHT,
+    LEFT,
+    FORWARD_RIGHT,
+    FORWARD_LEFT,
+    BACKWARD_RIGHT,
+    BACKWARD_LEFT;
+}

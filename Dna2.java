@@ -3,11 +3,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import static java.lang.Math.abs;
+
 public class Dna2 {
     private List<String> moveSequence = new ArrayList<>();// gene
     private Point currentPoint = new Point(0,0); // starting position
     private double fitness = 0.00;
     private double sparseness = 0.00;
+    private double distanceFromGoal = 0.00;
 
 
     private static int[][] MAZE = new int[0][0];
@@ -87,6 +90,14 @@ public class Dna2 {
         this.currentPoint = currentPoint;
     }
 
+    public double getDistanceFromGoal() {
+        return distanceFromGoal;
+    }
+
+    public void setDistanceFromGoal(double distanceFromGoal) {
+        this.distanceFromGoal = distanceFromGoal;
+    }
+
     @Override
     public String toString() {
         return "Dna2{" +
@@ -156,11 +167,57 @@ public class Dna2 {
     public double calculateFitness(Point goal){
         double max_score = this.max_x * 1.4133; // max distance - Assuming the maze is always a square.
         double score = 0.0;
+
         Point endpoint = getEndingPosition(this.moveSequence);
-        score = max_score - findDistance(endpoint, goal);
+        this.distanceFromGoal = findDistance(endpoint, goal);
+        score = max_score - this.distanceFromGoal;
         this.fitness = score/max_score;
         return this.fitness;
     }
+    public double calculateNovelty(List<Dna2> population, List<Dna2> noveltyArchive){
+        // In theory, difference should be calculated on phenotype and not genotype.
+        double score =0.0;
+        double result = 0.0;
+        double max_score = this.max_x * 1.4133; // max distance - Assuming the maze is always a square.
+        Point endpoint = getEndingPosition(this.moveSequence);// this updates the 'this.currentPoint' as well
+        for(Dna2 dna: population){
+            if(this != dna) {
+                score = max_score - findDistance(endpoint, dna.getCurrentPoint());// more the distance is, lesser the score is.
+                score = 1 - (score / max_score);// just normalizing it to 0-1 range.
+                //this.sparseness = score;
+                result += score;
+            }
+            // need a maximization not minimization
+        }
+        for(Dna2 dna: noveltyArchive){
+            if(this != dna) {
+                score = max_score - findDistance(endpoint, dna.getCurrentPoint());// more the distance is, lesser the score is.
+                score = 1 - (score / max_score);// just normalizing it to 0-1 range.
+                //this.sparseness = score;
+                result += score;
+            }
+            // need a maximization not minimization
+        }
+
+        this.sparseness = result/(population.size() == 1?1:population.size()-1) + (noveltyArchive.size() == 1?1:noveltyArchive.isEmpty()?0:(noveltyArchive.size()-1));
+        //System.out.println("Novelty score : "+this.sparseness);
+        return this.sparseness;
+//        for(int i=0; i< this.genes.length() ;i++){
+//            if(this.genes.charAt(i) != targetString.charAt(i)){
+//                score += abs(Character.getNumericValue(this.genes.charAt(i)) - Character.getNumericValue(targetString.charAt(i)));
+//            }
+//        }
+//        //System.out.println("raw score is : "+score);
+//        //System.out.println("max score before compare is : "+this.maxScore);
+//        if(Double.compare(score,this.maxScore) > 0){
+//            //System.out.println("max score is : "+this.maxScore);
+//            score = this.maxScore;
+//        }
+//        this.sparseness = this.getNormalizedValue(score);
+//        //System.out.println("Sparseness is : " +this.sparseness);
+//        return this.sparseness;
+    }
+
     public Dna2 crossover(Dna2 parent){
         Dna2 child= new Dna2();
         int midpoint = new Random().nextInt(this.moveSequence.size());
@@ -263,6 +320,16 @@ public class Dna2 {
         return true;
     }
 
+    public void drawFinalPath(){
+       this.currentPoint = new Point(0,0);
+       for(String move : this.getMoveSequence()){
+           this.currentPoint = getMovedPoint(move);
+           if(MAZE[this.currentPoint.getPositionX()][this.currentPoint.getPositionY()] == 2 ){
+               break;
+           }
+           MAZE[this.currentPoint.getPositionX()][this.currentPoint.getPositionY()] = 7;
+       }
+    }
 
 
     public static void main(String args[]){

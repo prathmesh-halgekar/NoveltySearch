@@ -18,6 +18,7 @@ public class Dna2 {
     private static int max_y;
     private static int OBSTACLE = 1;
     private static int GOAL_VALUE = 2;
+    private static int FOOT_STEPS = 7;
     private static Point goal;
     private static List<Point> obstacles;
 
@@ -324,10 +325,10 @@ public class Dna2 {
        this.currentPoint = new Point(0,0);
        for(String move : this.getMoveSequence()){
            this.currentPoint = getMovedPoint(move);
-           if(MAZE[this.currentPoint.getPositionX()][this.currentPoint.getPositionY()] == 2 ){
+           if(MAZE[this.currentPoint.getPositionX()][this.currentPoint.getPositionY()] == GOAL_VALUE ){
                break;
            }
-           MAZE[this.currentPoint.getPositionX()][this.currentPoint.getPositionY()] = 7;
+           MAZE[this.currentPoint.getPositionX()][this.currentPoint.getPositionY()] = FOOT_STEPS;
        }
     }
 

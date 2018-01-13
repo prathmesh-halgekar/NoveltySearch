@@ -152,11 +152,11 @@ public class Population {
     }
     public void calculateFitness(){
         //System.out.println(" In calculateFitness,  Generation no. : " + this.getGeneration());
-        for(Dna2 dna : this.dnaList){
+        for(Dna2 dna : this.dnaList) {
+            dna.calculateFitness(this.goal);
 
-                dna.calculateFitness(this.goal);
-
-            if(isNoveltySearch){
+            if (isNoveltySearch) {
+                dna.setCurrentPoint(new Point(0,0));// because 'calculateFitness' in previous step will already update the currentPoint to some location.
                 dna.calculateNovelty(this.dnaList, noveltyArchive);
             }
         }
@@ -181,22 +181,38 @@ public class Population {
             }
         }else{
             List<Dna2> tempArchiveList = new ArrayList<>();
+            int evaluations = 0;
             for(Dna2 dna : this.dnaList){
                 double noveltyScore = 0.0;
                 noveltyScore = dna.calculateNovelty(this.dnaList,noveltyArchive);
 
                 //System.out.println("novelty score : "+noveltyScore);
-                if(noveltyScore > this.noveltyThreshold){
+
+                if(noveltyScore > this.noveltyThreshold && evaluations < 26){
+                    evaluations++;
                     tempArchiveList.add(dna);
                 }
-
+//                System.out.println("New Threshold is : "+this.noveltyThreshold);
                 //normalize the sparseness to a value between 0-100.
                 Double tmp = dna.getSparseness() * 100;
                 for (int i = 0; i < tmp; i++) {
                     this.matingPool.add(dna);
                 }
             }
-
+            if(evaluations > 25){
+                this.noveltyThreshold += (0.20 * this.noveltyThreshold);
+                if(Double.compare(this.noveltyThreshold,1.0) > 0){
+                    this.noveltyThreshold = 1.0;
+                }
+                //System.out.println("New Threshold after increasing is : "+this.noveltyThreshold);
+            }
+            if(evaluations < 15){
+                this.noveltyThreshold -= (0.05 * this.noveltyThreshold);
+                if(Double.compare(this.noveltyThreshold,0.0) < 0){
+                    this.noveltyThreshold = 0.0;
+                }
+                //System.out.println("New Threshold after decreasing is : "+this.noveltyThreshold);
+            }
             Collections.sort(tempArchiveList, Collections.reverseOrder(new Comparator<Dna2>() {
                 @Override
                 public int compare(Dna2 d1, Dna2 d2) {
@@ -204,10 +220,14 @@ public class Population {
                 }
             }));
             int count = 0;
-            for (Dna2 dna : tempArchiveList){
-                if(count < 15){
-                    noveltyArchive.add(dna);
-                }else{
+            for (Dna2 dna : tempArchiveList) {
+                if (count < 5) {
+                    if (!noveltyArchive.contains(dna)) {
+                        dna.setCurrentPoint(new Point(0,0));
+                        noveltyArchive.add(dna);
+                    }
+
+                } else {
                     // just avoiding traditional looping using for loop.
                     break;
                 }

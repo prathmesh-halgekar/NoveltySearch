@@ -18,6 +18,11 @@ public class SearchStrategy {
         Point p9 = new Point(3,1);
         Point p10 = new Point(2,2);
         Point p11 = new Point(1,3);//this makes it very hard
+        Point p12 = new Point(4,3);
+        Point p13 = new Point(5,4);
+        Point p14 = new Point(5,5);
+        Point p15 = new Point(5,3);
+        Point p16 = new Point(4,2);
         List<Point> obstacles = new ArrayList<>();
         obstacles.add(p1);
         obstacles.add(p2);
@@ -30,9 +35,13 @@ public class SearchStrategy {
         obstacles.add(p9);
         obstacles.add(p10);
         obstacles.add(p11);
-        //obstacles.add(p6);
+//        obstacles.add(p12);
+//        obstacles.add(p13);
+//        obstacles.add(p14);
+//        obstacles.add(p15);
+//        obstacles.add(p16);
 
-        population.setUpSearch(200, 0.09,  goal, obstacles, 7,7,true, 9.90);
+        population.setUpSearch(200, 0.1,  goal, obstacles, 7,7,true, 0.7);
         population.initialize();
         population.calculateFitness();
         do {

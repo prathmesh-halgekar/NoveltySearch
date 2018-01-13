@@ -1,9 +1,6 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-
-import static java.lang.Math.abs;
 
 public class Dna2 {
     private List<String> moveSequence = new ArrayList<>();// gene
@@ -179,11 +176,16 @@ public class Dna2 {
         // In theory, difference should be calculated on phenotype and not genotype.
         double score =0.0;
         double result = 0.0;
+        double result1 = 0.0;
         double max_score = this.max_x * 1.4133; // max distance - Assuming the maze is always a square.
-        Point endpoint = getEndingPosition(this.moveSequence);// this updates the 'this.currentPoint' as well
+        Point endpoint = null;
+        if(this.getCurrentPoint().getPositionX() ==0 && this.getCurrentPoint().getPositionY() ==0){
+            endpoint = getEndingPosition(this.moveSequence);// this updates the 'this.currentPoint' as well
+        }
+
         for(Dna2 dna: population){
             if(this != dna) {
-                score = max_score - findDistance(endpoint, dna.getCurrentPoint());// more the distance is, lesser the score is.
+                score = max_score - findDistance(this.currentPoint, dna.getCurrentPoint());// more the distance is, lesser the score is.
                 score = 1 - (score / max_score);// just normalizing it to 0-1 range.
                 //this.sparseness = score;
                 result += score;
@@ -192,16 +194,28 @@ public class Dna2 {
         }
         for(Dna2 dna: noveltyArchive){
             if(this != dna) {
-                score = max_score - findDistance(endpoint, dna.getCurrentPoint());// more the distance is, lesser the score is.
+                score = max_score - findDistance(this.currentPoint, dna.getCurrentPoint());// more the distance is, lesser the score is.
                 score = 1 - (score / max_score);// just normalizing it to 0-1 range.
                 //this.sparseness = score;
-                result += score;
+                result1 += score;
             }
             // need a maximization not minimization
         }
-
-        this.sparseness = result/(population.size() == 1?1:population.size()-1) + (noveltyArchive.size() == 1?1:noveltyArchive.isEmpty()?0:(noveltyArchive.size()-1));
+        //System.out.println("Raw result is : "+result);
+        //System.out.println("Sparseness is : "+(result/(population.size()-1)));
+        double score1= result/(population.size()-1);
+        double score2 =0.0;
+        if(!noveltyArchive.isEmpty() && noveltyArchive.size() != 1){
+            score2= result1/(noveltyArchive.size()-1);
+        }else if(!noveltyArchive.isEmpty() && noveltyArchive.size() == 1){
+            score2= result1;
+        }
+        this.sparseness = score1 + score2;
         //System.out.println("Novelty score : "+this.sparseness);
+        if(Double.compare(this.sparseness,1) > 0){
+            this.sparseness =1.0;
+        }
+        //System.out.println("Sparseness is : "+this.sparseness);
         return this.sparseness;
 //        for(int i=0; i< this.genes.length() ;i++){
 //            if(this.genes.charAt(i) != targetString.charAt(i)){
@@ -323,12 +337,16 @@ public class Dna2 {
 
     public void drawFinalPath(){
        this.currentPoint = new Point(0,0);
-       for(String move : this.getMoveSequence()){
+       for(String move : this.getMoveSequence()) {
            this.currentPoint = getMovedPoint(move);
-           if(MAZE[this.currentPoint.getPositionX()][this.currentPoint.getPositionY()] == GOAL_VALUE ){
+           if (MAZE[this.currentPoint.getPositionX()][this.currentPoint.getPositionY()] == GOAL_VALUE) {
                break;
            }
+           assert(MAZE[this.currentPoint.getPositionX()][this.currentPoint.getPositionY()] != OBSTACLE);
+
            MAZE[this.currentPoint.getPositionX()][this.currentPoint.getPositionY()] = FOOT_STEPS;
+
+
        }
     }
 
@@ -386,6 +404,14 @@ public class Dna2 {
 dn.setMoveSequence(tempMoves);
         System.out.println("Curr position : "+tmp);
         System.out.println(" : " +dn.calculateFitness(goal));
+
+
+
+
+
+//
+
+
 
     }
 
